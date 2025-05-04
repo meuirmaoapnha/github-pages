@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Moderna</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --dark: #1e293b;
+            --light: #f8fafc;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        
+        .calculator {
+            width: 100%;
+            max-width: 340px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 
+                0 10px 25px rgba(0, 0, 0, 0.1),
+                0 20px 50px rgba(0, 0, 0, 0.15);
+            transform: translateY(0);
+            transition: all 0.3s ease;
+        }
+        
+        .calculator:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                0 15px 30px rgba(0, 0, 0, 0.15),
+                0 25px 60px rgba(0, 0, 0, 0.2);
+        }
+        
+        .display {
+            height: 180px;
+            background: var(--dark);
+            color: var(--light);
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: flex-end;
+            position: relative;
+        }
+        
+        .previous-operation {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1rem;
+            margin-bottom: 8px;
+            height: 20px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+            text-align: right;
+        }
+        
+        .current-operation {
+            font-size: 2.5rem;
+            font-weight: 300;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+            text-align: right;
+        }
+        
+        .buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            padding: 20px;
+            background: white;
+            border-radius: 20px 20px 0 0;
+        }
+        
+        .btn {
+            aspect-ratio: 1/1;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+            border: none;
+            outline: none;
+        }
+        
+        .btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .btn:active {
+            transform: scale(0.95);
+        }
+        
+        .btn-number {
+            background: var(--light);
+            color: var(--dark);
+        }
+        
+        .btn-number:hover {
+            background: #e2e8f0;
+        }
+        
+        .btn-operator {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-operator:hover {
+            background: #2563eb;
+        }
+        
+        .btn-equals {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .btn-equals:hover {
+            background: #059669;
+        }
+        
+        .btn-clear {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .btn-clear:hover {
+            background: #dc2626;
+        }
+        
+        .btn-zero {
+            grid-column: span 2;
+            border-radius: 50px;
+            aspect-ratio: 2/1;
+        }
+        
+        @media (max-width: 400px) {
+            .calculator {
+                max-width: 300px;
+            }
+            
+            .buttons-grid {
+                gap: 8px;
+                padding: 15px;
+            }
+            
+            .btn {
+                font-size: 1.3rem;
+            }
+        }
+        
+        /* Animation for button press */
+        @keyframes buttonPress {
+            0% { transform: scale(1); }
+            50% { transform: scale(0.95); }
+            100% { transform: scale(1); }
+        }
+        
+        .btn-press {
+            animation: buttonPress 0.2s ease;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+    <div class="calculator">
+        <div class="display">
+            <div class="previous-operation" id="previous-operation"></div>
+            <div class="current-operation" id="current-operation">0</div>
+        </div>
+        
+        <div class="buttons-grid">
+            <button class="btn btn-clear" onclick="clearAll()">AC</button>
+            <button class="btn" onclick="toggleSign()">±</button>
+            <button class="btn" onclick="percentage()">%</button>
+            <button class="btn btn-operator" onclick="appendOperator('/')">÷</button>
+            
+            <button class="btn btn-number" onclick="appendNumber('7')">7</button>
+            <button class="btn btn-number" onclick="appendNumber('8')">8</button>
+            <button class="btn btn-number" onclick="appendNumber('9')">9</button>
+            <button class="btn btn-operator" onclick="appendOperator('*')">×</button>
+            
+            <button class="btn btn-number" onclick="appendNumber('4')">4</button>
+            <button class="btn btn-number" onclick="appendNumber('5')">5</button>
+            <button class="btn btn-number" onclick="appendNumber('6')">6</button>
+            <button class="btn btn-operator" onclick="appendOperator('-')">−</button>
+            
+            <button class="btn btn-number" onclick="appendNumber('1')">1</button>
+            <button class="btn btn-number" onclick="appendNumber('2')">2</button>
+            <button class="btn btn-number" onclick="appendNumber('3')">3</button>
+            <button class="btn btn-operator" onclick="appendOperator('+')">+</button>
+            
+            <button class="btn btn-number btn-zero" onclick="appendNumber('0')">0</button>
+            <button class="btn btn-number" onclick="appendDecimal()">.</button>
+            <button class="btn btn-equals" onclick="calculate()">=</button>
+        </div>
+    </div>
+
+    <script>
+        let currentOperand = '0';
+        let previousOperand = '';
+        let operation = null;
+        let shouldResetScreen = false;
+        
+        const currentOperationElement = document.getElementById('current-operation');
+        const previousOperationElement = document.getElementById('previous-operation');
+        
+        function updateDisplay() {
+            currentOperationElement.textContent = currentOperand;
+            if (operation != null) {
+                previousOperationElement.textContent = 
+                    `${previousOperand} ${operation}`;
+            } else {
+                previousOperationElement.textContent = '';
+            }
+        }
+        
+        function appendNumber(number) {
+            if (currentOperand === '0' || shouldResetScreen) {
+                currentOperand = '';
+                shouldResetScreen = false;
+            }
+            currentOperand += number;
+            updateDisplay();
+            animateButton(event.target);
+        }
+        
+        function appendDecimal() {
+            if (shouldResetScreen) {
+                currentOperand = '0';
+                shouldResetScreen = false;
+            }
+            if (currentOperand.includes('.')) return;
+            if (currentOperand === '') {
+                currentOperand = '0';
+            }
+            currentOperand += '.';
+            updateDisplay();
+            animateButton(event.target);
+        }
+        
+        function appendOperator(op) {
+            if (operation !== null) calculate();
+            previousOperand = currentOperand;
+            operation = op;
+            shouldResetScreen = true;
+            updateDisplay();
+            animateButton(event.target);
+        }
+        
+        function calculate() {
+            let computation;
+            const prev = parseFloat(previousOperand);
+            const current = parseFloat(currentOperand);
+            
+            if (isNaN(prev) || isNaN(current)) return;
+            
+            switch (operation) {
+                case '+':
+                    computation = prev + current;
+                    break;
+                case '-':
+                    computation = prev - current;
+                    break;
+                case '*':
+                    computation = prev * current;
+                    break;
+                case '/':
+                    computation = prev / current;
+                    break;
+                default:
+                    return;
+            }
+            
+            currentOperand = computation.toString();
+            operation = null;
+            shouldResetScreen = true;
+            updateDisplay();
+            animateButton(event.target);
+        }
+        
+        function clearAll() {
+            currentOperand = '0';
+            previousOperand = '';
+            operation = null;
+            updateDisplay();
+            animateButton(event.target);
+        }
+        
+        function toggleSign() {
+            currentOperand = (parseFloat(currentOperand) * -1).toString();
+            updateDisplay();
+            animateButton(event.target);
+        }
+        
+        function percentage() {
+            currentOperand = (parseFloat(currentOperand) / 100).toString();
+            updateDisplay();
+            animateButton(event.target);
+        }
+        
+        function animateButton(button) {
+            button.classList.add('btn-press');
+            setTimeout(() => {
+                button.classList.remove('btn-press');
+            }, 200);
+        }
+        
+        // Keyboard support
+        document.addEventListener('keydown', (e) => {
+            if (e.key >= '0' && e.key <= '9') appendNumber(e.key);
+            else if (e.key === '.') appendDecimal();
+            else if (e.key === '+') appendOperator('+');
+            else if (e.key === '-') appendOperator('-');
+            else if (e.key === '*') appendOperator('*');
+            else if (e.key === '/') appendOperator('/');
+            else if (e.key === '%') percentage();
+            else if (e.key === 'Enter' || e.key === '=') calculate();
+            else if (e.key === 'Escape') clearAll();
+            else if (e.key === 'Backspace') {
+                currentOperand = currentOperand.slice(0, -1) || '0';
+                updateDisplay();
+            }
+        });
+    </script>
+</body>
+</html>
